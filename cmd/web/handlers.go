@@ -9,23 +9,23 @@ import (
 )
 
 func home(w http.ResponseWriter, r *http.Request) {
-	// Check if the current request URL path exactly matches "/". If it doesn't, use
-	// the http.NotFound() function to send a 404 response to the client.
-	// Importantly, we then return from the handler. If we don't return the handler
-	// would keep executing and also write the "Hello from SnippetBox" message.
 	if r.URL.Path != "/" {
 		http.NotFound(w, r)
 		return
 	}
 
-	ts, err := template.ParseFiles("./ui/html/pages/home.tmpl")
+	files := []string{
+		"ui/html/base.tmpl.html",
+		"ui/html/pages/home.tmpl.html",
+	}
+	ts, err := template.ParseFiles(files...)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 
-	err = ts.Execute(w, nil)
+	err = ts.ExecuteTemplate(w, "base", nil)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
