@@ -9,3 +9,6 @@ httpie_get_miss:
 
 httpie_post_create:
 	http POST http://localhost:4000/snippet/create
+
+test_post_create:
+	curl -i -X POST http://localhost:4000/snippet/create
