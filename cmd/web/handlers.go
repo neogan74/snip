@@ -2,12 +2,11 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"strconv"
 )
 
-func one(w http.ResponseWriter, r *http.Request) {
+func home(w http.ResponseWriter, r *http.Request) {
 	// Check if the current request URL path exactly matches "/". If it doesn't, use
 	// the http.NotFound() function to send a 404 response to the client.
 	// Importantly, we then return from the handler. If we don't return the handler
@@ -44,15 +43,4 @@ func snippetCreate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Write([]byte("Create Snippet"))
-}
-
-func main() {
-	mux := http.NewServeMux()
-	mux.HandleFunc("/", one)
-	mux.HandleFunc("/snippet/view", snippetView)
-	mux.HandleFunc("/snippet/create", snippetCreate)
-
-	log.Println("Listening on :4000")
-	err := http.ListenAndServe(":4000", mux)
-	log.Fatal(err)
 }
