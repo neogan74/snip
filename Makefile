@@ -7,6 +7,10 @@ httpie_get_view:
 httpie_get_miss:
 	http GET http://localhost:4000/miss
 
+httpie_get_create:
+	http GET http://localhost:4000/snippet/create
+
+
 httpie_post_create:
 	http POST http://localhost:4000/snippet/create
 
