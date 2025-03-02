@@ -16,3 +16,7 @@ httpie_post_create:
 
 test_post_create:
 	curl -i -X POST http://localhost:4000/snippet/create
+
+
+test_get_with_id:
+	curl -i -X GET http://localhost:4000/snippet/view?id=1234
