@@ -6,20 +6,26 @@ import (
 	"net/http"
 )
 
+type Config struct {
+	addr      string
+	staticDir string
+}
+
 func main() {
-	// Define a new command-line flag for address
-	addr := flag.String("addr", "localhost:4000", "http service address")
+	var cfg Config
+	flag.StringVar(&cfg.addr, "addr", "localhost:4000", "http service address")
+	flag.StringVar(&cfg.staticDir, "static-dir", "./ui/static", "Path to static assets")
 	flag.Parse()
 	mux := http.NewServeMux()
 
-	fileServer := http.FileServer(http.Dir("./ui/static"))
+	fileServer := http.FileServer(http.Dir(cfg.staticDir))
 
 	mux.Handle("/static/", http.StripPrefix("/static/", fileServer))
 	mux.HandleFunc("/", home)
 	mux.HandleFunc("/snippet/view", snippetView)
 	mux.HandleFunc("/snippet/create", snippetCreate)
 
-	log.Printf("Listening on http://%s\n", *addr)
-	err := http.ListenAndServe(*addr, mux)
+	log.Printf("Listening on http://%s\n", cfg.addr)
+	err := http.ListenAndServe(cfg.addr, mux)
 	log.Fatal(err)
 }
