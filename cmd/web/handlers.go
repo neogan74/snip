@@ -3,14 +3,13 @@ package main
 import (
 	"fmt"
 	"html/template"
-	"log"
 	"net/http"
 	"strconv"
 )
 
 func (app *App) home(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/" {
-		http.NotFound(w, r)
+		app.notFound(w)
 		return
 	}
 
@@ -21,15 +20,13 @@ func (app *App) home(w http.ResponseWriter, r *http.Request) {
 	}
 	ts, err := template.ParseFiles(files...)
 	if err != nil {
-		log.Println(err)
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		app.serverError(w, err)
 		return
 	}
 
 	err = ts.ExecuteTemplate(w, "base", nil)
 	if err != nil {
-		app.errorLog.Println(err)
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		app.serverError(w, err)
 	}
 }
 
@@ -39,7 +36,7 @@ func (app *App) snippetView(w http.ResponseWriter, r *http.Request) {
 	// be converted to an integer, or the value is less than 1, we return a 404 page // not found response.
 	id, err := strconv.Atoi(r.URL.Query().Get("id"))
 	if err != nil {
-		http.NotFound(w, r)
+		app.notFound(w)
 		return
 	}
 	fmt.Fprintf(w, "Display a specific snippet with ID %d ...", id)
@@ -53,7 +50,7 @@ func (app *App) snippetCreate(w http.ResponseWriter, r *http.Request) {
 		// response body. We then return from the function so that the
 		// subsequent code is not executed.
 		w.Header().Set("Allow", "POST")
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		app.clientError(w, http.StatusMethodNotAllowed)
 		return
 	}
 	w.Write([]byte("Create Snippet"))
