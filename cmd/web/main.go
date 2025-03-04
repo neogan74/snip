@@ -29,7 +29,13 @@ func main() {
 	mux.HandleFunc("/snippet/view", snippetView)
 	mux.HandleFunc("/snippet/create", snippetCreate)
 
+	srv := &http.Server{
+		Addr:     cfg.addr,
+		Handler:  mux,
+		ErrorLog: errorLog,
+	}
+
 	infoLog.Printf("Listening on http://%s\n", cfg.addr)
-	err := http.ListenAndServe(cfg.addr, mux)
+	err := srv.ListenAndServe()
 	errorLog.Fatal(err)
 }
