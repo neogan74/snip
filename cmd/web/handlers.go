@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/neogan74/snip/internal/models"
-	"html/template"
 	"net/http"
 	"strconv"
 )
@@ -14,22 +13,29 @@ func (app *App) home(w http.ResponseWriter, r *http.Request) {
 		app.notFound(w)
 		return
 	}
-
-	files := []string{
-		"ui/html/base.tmpl.html",
-		"ui/html/partials/nav.tmpl.html",
-		"ui/html/pages/home.tmpl.html",
-	}
-	ts, err := template.ParseFiles(files...)
+	snippets, err := app.snippets.Latest()
 	if err != nil {
 		app.serverError(w, err)
 		return
 	}
-
-	err = ts.ExecuteTemplate(w, "base", nil)
-	if err != nil {
-		app.serverError(w, err)
+	for _, snippet := range snippets {
+		fmt.Fprintln(w, snippet)
 	}
+	//files := []string{
+	//	"ui/html/base.tmpl.html",
+	//	"ui/html/partials/nav.tmpl.html",
+	//	"ui/html/pages/home.tmpl.html",
+	//}
+	//ts, err := template.ParseFiles(files...)
+	//if err != nil {
+	//	app.serverError(w, err)
+	//	return
+	//}
+	//
+	//err = ts.ExecuteTemplate(w, "base", nil)
+	//if err != nil {
+	//	app.serverError(w, err)
+	//}
 }
 
 func (app *App) snippetView(w http.ResponseWriter, r *http.Request) {
