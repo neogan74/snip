@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"flag"
+	"github.com/neogan74/snip/internal/models"
 	"log"
 	"net/http"
 	"os"
@@ -17,6 +18,7 @@ type Config struct {
 type App struct {
 	errorLog *log.Logger
 	infoLog  *log.Logger
+	snippets *models.SnippetModel
 }
 
 func main() {
@@ -39,6 +41,7 @@ func main() {
 	app := &App{
 		errorLog: errorLog,
 		infoLog:  infoLog,
+		snippets: &models.SnippetModel{db},
 	}
 	srv := &http.Server{
 		Addr:     cfg.addr,
