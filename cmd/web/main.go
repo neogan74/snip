@@ -1,10 +1,13 @@
 package main
 
 import (
+	"database/sql"
 	"flag"
 	"log"
 	"net/http"
 	"os"
+
+	_ "github.com/go-sql-driver/mysql"
 )
 
 type Config struct {
@@ -23,6 +26,15 @@ func main() {
 
 	errorLog := log.New(os.Stdout, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
 	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
+
+	db, err := sql.Open("mysql", "snipuser:snippassword@/snipdb?parseTime=true")
+	if err != nil {
+		errorLog.Fatal(err)
+	}
+	defer db.Close()
+
+	infoLog.Println(db.Ping())
+
 	// DI
 	app := &App{
 		errorLog: errorLog,
@@ -35,6 +47,6 @@ func main() {
 	}
 
 	infoLog.Printf("Listening on http://%s\n", cfg.addr)
-	err := srv.ListenAndServe()
+	err = srv.ListenAndServe()
 	errorLog.Fatal(err)
 }
