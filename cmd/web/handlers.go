@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/neogan74/snip/internal/models"
+	"html/template"
 	"net/http"
 	"strconv"
 )
@@ -40,7 +41,7 @@ func (app *App) home(w http.ResponseWriter, r *http.Request) {
 
 func (app *App) snippetView(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(r.URL.Query().Get("id"))
-	if err != nil {
+	if err != nil || id < 1 {
 		app.notFound(w)
 		return
 	}
@@ -53,7 +54,24 @@ func (app *App) snippetView(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
-	fmt.Fprintf(w, "+%v", snippet)
+
+	files := []string{
+		"./ui/html/base.tmpl.html",
+		"./ui/html/partials/nav.tmpl.html",
+		"./ui/html/pages/view.tmpl.html",
+	}
+
+	ts, err := template.ParseFiles(files...)
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
+
+	err = ts.ExecuteTemplate(w, "base", snippet)
+	if err != nil {
+		app.serverError(w, err)
+	}
+
 }
 
 func (app *App) snippetCreate(w http.ResponseWriter, r *http.Request) {
