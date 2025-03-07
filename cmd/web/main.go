@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"flag"
 	"github.com/neogan74/snip/internal/models"
+	"html/template"
 	"log"
 	"net/http"
 	"os"
@@ -16,9 +17,10 @@ type Config struct {
 }
 
 type App struct {
-	errorLog *log.Logger
-	infoLog  *log.Logger
-	snippets *models.SnippetModel
+	errorLog      *log.Logger
+	infoLog       *log.Logger
+	snippets      *models.SnippetModel
+	templateCache map[string]*template.Template
 }
 
 func main() {
@@ -34,14 +36,18 @@ func main() {
 		errorLog.Fatal(err)
 	}
 	defer db.Close()
-
 	infoLog.Println(db.Ping())
 
+	templateCache, err := newTempalteCache()
+	if err != nil {
+		errorLog.Fatal(err)
+	}
 	// DI
 	app := &App{
-		errorLog: errorLog,
-		infoLog:  infoLog,
-		snippets: &models.SnippetModel{db},
+		errorLog:      errorLog,
+		infoLog:       infoLog,
+		snippets:      &models.SnippetModel{db},
+		templateCache: templateCache,
 	}
 	srv := &http.Server{
 		Addr:     cfg.addr,
