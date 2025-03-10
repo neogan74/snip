@@ -9,7 +9,7 @@
         </div>
         <pre><code>{{.Content}}</code></pre>
         <div class="metadata">
-            <time>Created: {{HumanDate .CreatedAt}}</time>
+            <time>{{.CreatedAt | HumanDate | printf "Created: %s"}}</time>
             <time>Expires: {{HumanDate .ExpiresAt}}</time>
         </div>
     </div>
