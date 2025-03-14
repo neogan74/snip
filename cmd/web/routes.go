@@ -17,5 +17,5 @@ func (app *App) routes() http.Handler {
 
 	standard := alice.New(app.recoverPanic, app.logRequest, secureHeaders)
 
-	return standarddy.Then(mux)
+	return standard.Then(mux)
 }
