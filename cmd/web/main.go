@@ -3,11 +3,12 @@ package main
 import (
 	"database/sql"
 	"flag"
-	"github.com/neogan74/snip/internal/models"
 	"html/template"
 	"log"
 	"net/http"
 	"os"
+
+	"github.com/neogan74/snip/internal/models"
 
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -39,6 +40,7 @@ func main() {
 	infoLog.Println(db.Ping())
 
 	templateCache, err := newTempalteCache()
+
 	if err != nil {
 		errorLog.Fatal(err)
 	}
