@@ -1,0 +1,9 @@
+### GET request to example server
+GET http://localhost:4000/snippet/view/1
+###
+
+### GET request to example server
+POST http://localhost:4000/snippet/view/1
+
+### just test
+GET http://localhost:4000/missing
