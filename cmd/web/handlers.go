@@ -56,10 +56,20 @@ func (app *App) snippetCreate(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *App) snippetCreatePost(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
 
-	title := "0 Snail"
-	content := "0 Snail\nClimp on the monunt Fuji\nBut slowly!\n\n - Kobayasi Issa"
-	expires := 7
+	title := r.PostForm.Get("title")
+	content := r.PostForm.Get("content")
+
+	expires, err := strconv.Atoi(r.PostForm.Get("expires"))
+	if err != nil || expires < 1 {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
 	id, err := app.snippets.Insert(title, content, expires)
 	if err != nil {
 		app.serverError(w, err)
