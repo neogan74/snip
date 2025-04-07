@@ -7,6 +7,8 @@ import (
 	"github.com/neogan74/snip/internal/models"
 	"net/http"
 	"strconv"
+	"strings"
+	"unicode/utf8"
 )
 
 func (app *App) home(w http.ResponseWriter, r *http.Request) {
@@ -70,6 +72,26 @@ func (app *App) snippetCreatePost(w http.ResponseWriter, r *http.Request) {
 		app.clientError(w, http.StatusBadRequest)
 		return
 	}
+
+	fieldErrors := make(map[string]string)
+	if strings.TrimSpace(title) == "" {
+		fieldErrors["title"] = "Title field cannot be blank"
+	} else if utf8.RuneCountInString(title) > 100 {
+		fieldErrors["title"] = "Title field cannot be longer than 100 characters"
+	}
+	if strings.TrimSpace(content) == "" {
+		fieldErrors["content"] = "Content field cannot be blank"
+	}
+
+	if expires != 1 && expires != 7 && expires != 365 {
+		fieldErrors["expires"] = "This field must be equal 1, 7, 365"
+	}
+
+	if len(fieldErrors) > 0 {
+		fmt.Fprint(w, fieldErrors)
+		return
+	}
+
 	id, err := app.snippets.Insert(title, content, expires)
 	if err != nil {
 		app.serverError(w, err)
