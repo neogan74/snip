@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/go-playground/form/v4"
 	"github.com/neogan74/snip/internal/models"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -22,6 +23,7 @@ type App struct {
 	infoLog       *log.Logger
 	snippets      *models.SnippetModel
 	templateCache map[string]*template.Template
+	formDecoder   *form.Decoder
 }
 
 func main() {
@@ -44,12 +46,15 @@ func main() {
 	if err != nil {
 		errorLog.Fatal(err)
 	}
+
+	formDecoder := form.NewDecoder()
 	// DI
 	app := &App{
 		errorLog:      errorLog,
 		infoLog:       infoLog,
 		snippets:      &models.SnippetModel{db},
 		templateCache: templateCache,
+		formDecoder:   formDecoder,
 	}
 	srv := &http.Server{
 		Addr:     cfg.addr,
