@@ -26,7 +26,7 @@ type App struct {
 
 func main() {
 	var cfg Config
-	flag.StringVar(&cfg.addr, "addr", "localhost:4000", "http service address")
+	flag.StringVar(&cfg.addr, "addr", "localhost:4001", "http service address")
 	flag.Parse()
 
 	errorLog := log.New(os.Stdout, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
