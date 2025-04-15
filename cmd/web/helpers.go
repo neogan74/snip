@@ -41,11 +41,13 @@ func (app *App) render(w http.ResponseWriter, status int, page string, data *tem
 	}
 }
 
-func (app *App) newTempalteData(r *http.Request) *templateData {
+func (app *App) newTemplateData(r *http.Request) *templateData {
 	return &templateData{
 		CurrentYear: time.Now().Year(),
+		Flash:       app.seesionManager.PopString(r.Context(), "flash"),
 	}
 }
+
 func (app *App) decodePostForm(r *http.Request, dst any) error {
 	err := r.ParseForm()
 	if err != nil {

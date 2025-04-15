@@ -23,13 +23,14 @@ func (app *App) home(w http.ResponseWriter, r *http.Request) {
 		app.serverError(w, err)
 		return
 	}
-	data := app.newTempalteData(r)
+	data := app.newTemplateData(r)
 	data.Snippets = snippets
 	app.render(w, http.StatusOK, "home.tmpl.html", data)
 }
 
 func (app *App) snippetView(w http.ResponseWriter, r *http.Request) {
 	params := httprouter.ParamsFromContext(r.Context())
+
 	id, err := strconv.Atoi(params.ByName("id"))
 	if err != nil || id < 1 {
 		app.notFound(w)
@@ -46,7 +47,7 @@ func (app *App) snippetView(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data := app.newTempalteData(r)
+	data := app.newTemplateData(r)
 	data.Snippet = snippet
 
 	app.render(w, http.StatusOK, "view.tmpl.html", data)
@@ -54,7 +55,7 @@ func (app *App) snippetView(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *App) snippetCreate(w http.ResponseWriter, r *http.Request) {
-	data := app.newTempalteData(r)
+	data := app.newTemplateData(r)
 	data.Form = &SnippetCreateForm{
 		Expires: 365,
 	}
@@ -76,7 +77,7 @@ func (app *App) snippetCreatePost(w http.ResponseWriter, r *http.Request) {
 	form.ChecckField(validator.PermittedInt(form.Expires, 1, 7, 365), "expires", "This field must be equal 1, 7, 365")
 
 	if !form.Valid() {
-		data := app.newTempalteData(r)
+		data := app.newTemplateData(r)
 		data.Form = form
 		app.render(w, http.StatusUnprocessableEntity, "create.tmpl.html", data)
 		return
@@ -87,6 +88,8 @@ func (app *App) snippetCreatePost(w http.ResponseWriter, r *http.Request) {
 		app.serverError(w, err)
 		return
 	}
+
+	app.seesionManager.Put(r.Context(), "flash", "Snippet successfully created")
 
 	http.Redirect(w, r, fmt.Sprintf("/snippet/view/%d", id), http.StatusSeeOther)
 }
