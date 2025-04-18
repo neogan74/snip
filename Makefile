@@ -1,3 +1,10 @@
+
+build:
+	go build -o bin/web cmd/web/main.go
+
+
+
+
 test_get_view:
 	curl -v -i -X GET http://localhost:4000/snippet/view
 
