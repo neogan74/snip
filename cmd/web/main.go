@@ -72,7 +72,7 @@ func main() {
 		ErrorLog: errorLog,
 	}
 
-	infoLog.Printf("Listening on http://%s\n", cfg.addr)
-	err = srv.ListenAndServe()
+	infoLog.Printf("Listening on https://%s\n", cfg.addr)
+	err = srv.ListenAndServeTLS("./tls/cert.pem", "./tls/key.pem")
 	errorLog.Fatal(err)
 }
