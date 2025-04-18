@@ -72,10 +72,13 @@ func main() {
 		CurvePreferences: []tls.CurveID{tls.X25519, tls.CurveP256},
 	}
 	srv := &http.Server{
-		Addr:      cfg.addr,
-		Handler:   app.routes(),
-		ErrorLog:  errorLog,
-		TLSConfig: tlsConfig,
+		Addr:         cfg.addr,
+		Handler:      app.routes(),
+		ErrorLog:     errorLog,
+		TLSConfig:    tlsConfig,
+		IdleTimeout:  time.Minute,
+		ReadTimeout:  5 * time.Second,
+		WriteTimeout: 10 * time.Second,
 	}
 
 	infoLog.Printf("Listening on https://%s\n", cfg.addr)
