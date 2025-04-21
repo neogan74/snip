@@ -29,6 +29,7 @@ type App struct {
 	templateCache  map[string]*template.Template
 	formDecoder    *form.Decoder
 	seesionManager *scs.SessionManager
+	users          *models.UserModel
 }
 
 func main() {
@@ -63,6 +64,7 @@ func main() {
 		errorLog:       errorLog,
 		infoLog:        infoLog,
 		snippets:       &models.SnippetModel{db},
+		users:          &models.UserModel{db},
 		templateCache:  templateCache,
 		formDecoder:    formDecoder,
 		seesionManager: sessionManager,
