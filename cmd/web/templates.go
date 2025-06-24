@@ -2,7 +2,9 @@ package main
 
 import (
 	"github.com/neogan74/snip/internal/models"
+	"github.com/neogan74/snip/ui"
 	"html/template"
+	"io/fs"
 	"path/filepath"
 	"time"
 )
@@ -27,7 +29,8 @@ var functions = template.FuncMap{
 
 func newTempalteCache() (map[string]*template.Template, error) {
 	cache := make(map[string]*template.Template)
-	pages, err := filepath.Glob("./ui/html/pages/*.tmpl.html")
+
+	pages, err := fs.Glob(ui.Files, "html/pages/*.tmpl.html")
 	if err != nil {
 		return nil, err
 	}
@@ -36,11 +39,11 @@ func newTempalteCache() (map[string]*template.Template, error) {
 		name := filepath.Base(page)
 
 		files := []string{
-			"./ui/html/base.tmpl.html",
-			"./ui/html/partials/nav.tmpl.html",
+			"html/base.tmpl.html",
+			"html/partials/nav.tmpl.html",
 			page,
 		}
-		ts, err := template.New(name).Funcs(functions).ParseFiles(files...)
+		ts, err := template.New(name).Funcs(functions).ParseFS(ui.Files, files...)
 		if err != nil {
 			return nil, err
 		}
