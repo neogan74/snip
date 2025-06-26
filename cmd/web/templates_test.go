@@ -21,6 +21,11 @@ func TestHumanDate(t *testing.T) {
 			tm:   time.Time{},
 			want: "",
 		},
+		{
+			name: "CET",
+			tm:   time.Date(2025, 06, 26, 10, 15, 0, 0, time.FixedZone("CET", 1*60*60)),
+			want: "26 Jun 2025 at 09:15",
+		},
 	}
 
 	for _, tt := range tests {
