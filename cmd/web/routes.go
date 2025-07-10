@@ -1,10 +1,11 @@
 package main
 
 import (
+	"net/http"
+
 	"github.com/julienschmidt/httprouter"
 	"github.com/justinas/alice"
 	"github.com/neogan74/snip/ui"
-	"net/http"
 )
 
 func (app *App) routes() http.Handler {
@@ -16,6 +17,8 @@ func (app *App) routes() http.Handler {
 
 	fileServer := http.FileServer(http.FS(ui.Files))
 	router.Handler(http.MethodGet, "/static/*filepath", fileServer)
+
+	router.HandlerFunc(http.MethodGet, "/ping", ping)
 
 	// unprotected wuth auth group of endpoints
 	dynamic := alice.New(app.seesionManager.LoadAndSave, noSurf, app.authenticate)
