@@ -2,24 +2,29 @@ package main
 
 import (
 	"bytes"
-	"github.com/neogan74/snip/internal/assert"
 	"io"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/neogan74/snip/internal/assert"
 )
 
 func TestPing(t *testing.T) {
-	rr := httptest.NewRecorder()
+	app := &App{
+		errorLog: log.New(io.Discard, "", 0),
+		infoLog:  log.New(io.Discard, "", 0),
+	}
+	ts := httptest.NewTLSServer(app.routes())
+	defer ts.Close()
 
-	r, err := http.NewRequest(http.MethodGet, "/ping", nil)
+	rs, err := ts.Client().Get(ts.URL + "/ping")
 	if err != nil {
 		t.Fatal(err)
 	}
-	ping(rr, r)
-	rs := rr.Result()
 
-	assert.Equal(t, http.StatusOK, rs.StatusCode)
+	assert.Equal(t, rs.StatusCode, http.StatusOK)
 
 	defer rs.Body.Close()
 	body, err := io.ReadAll(rs.Body)
@@ -28,5 +33,5 @@ func TestPing(t *testing.T) {
 	}
 	bytes.TrimSpace(body)
 
-	assert.Equal(t, "OK", string(body))
+	assert.Equal(t, string(body), "OK")
 }
