@@ -32,9 +32,15 @@ INSERT INTO snippets (title, content, created, expires) VALUES (
                                                                    DATE_ADD(UTC_TIMESTAMP(), INTERVAL 7 DAY)
                                                                );
 
-CREATE USER 'snipuser'@'localhost';
-GRANT SELECT, INSERT, UPDATE, DELETE ON snipdb.* TO 'snipuser'@'localhost'; -- Important: Make sure to swap 'pass' with a password of your own choosing.
-ALTER USER 'snipuser'@'localhost' IDENTIFIED BY 'snippassword';
+-- For MySQL, use the following:
+CREATE USER 'snipuser'@'localhost' IDENTIFIED BY 'snippassword';
+GRANT SELECT, INSERT, UPDATE, DELETE ON snipdb.* TO 'snipuser'@'localhost';
+
+-- For SQL Server, use the following instead:
+-- CREATE LOGIN snipuser WITH PASSWORD = 'snippassword';
+-- USE snipdb;
+-- CREATE USER snipuser FOR LOGIN snipuser;
+-- GRANT SELECT, INSERT, UPDATE, DELETE ON SCHEMA :: dbo TO snipuser;
 
 CREATE TABLE sessions (
                           token CHAR(43) PRIMARY KEY, data BLOB NOT NULL,
@@ -44,8 +50,8 @@ CREATE INDEX sessions_expiry_idx ON sessions (expiry);
 
 CREATE TABLE users (
                        id INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT, name VARCHAR(255) NOT NULL,
-                       email VARCHAR(255) NOT NULL,
-                       hashed_password CHAR(60) NOT NULL,
+                       email NVARCHAR(255) NOT NULL,
+                       hashed_password NVARCHAR(60) NOT NULL,
                        created DATETIME NOT NULL
 );
 ALTER TABLE users ADD CONSTRAINT users_uc_email UNIQUE (email);
