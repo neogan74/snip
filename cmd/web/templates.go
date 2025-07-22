@@ -31,6 +31,11 @@ var functions = template.FuncMap{
 	"HumanDate": HumanDate,
 }
 
+// newTemplateCache creates a cache of parsed HTML templates for the application.
+// It scans the embedded filesystem for all page templates matching "html/pages/*.tmpl.html",
+// and for each page, it parses the base template, navigation partial, and the page itself
+// into a single *template.Template instance. The resulting map uses the page's base filename
+// as the key. Returns the cache map or an error if template parsing fails.
 func newTemplateCache() (map[string]*template.Template, error) {
 	cache := make(map[string]*template.Template)
 
