@@ -40,7 +40,13 @@ func main() {
 	errorLog := log.New(os.Stdout, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
 	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
 
-	db, err := sql.Open("mysql", "snipuser:snippassword@/snipdb?parseTime=true")
+	// Database connection
+	// Ensure SNIP_DB_DSN environment variable is set
+	dsn := os.Getenv("SNIP_DB_DSN")
+	if dsn == "" {
+		errorLog.Fatal("SNIP_DB_DSN environment variable not set")
+	}
+	db, err := sql.Open("mysql", dsn)
 	if err != nil {
 		errorLog.Fatal(err)
 	}
