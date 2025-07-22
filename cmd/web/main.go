@@ -28,7 +28,7 @@ type App struct {
 	snippets       *models.SnippetModel
 	templateCache  map[string]*template.Template
 	formDecoder    *form.Decoder
-	seesionManager *scs.SessionManager
+	sessionManager *scs.SessionManager
 	users          *models.UserModel
 }
 
@@ -67,7 +67,7 @@ func main() {
 		users:          &models.UserModel{db},
 		templateCache:  templateCache,
 		formDecoder:    formDecoder,
-		seesionManager: sessionManager,
+		sessionManager: sessionManager,
 	}
 
 	tlsConfig := &tls.Config{

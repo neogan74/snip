@@ -3,11 +3,12 @@ package main
 import (
 	"errors"
 	"fmt"
+	"net/http"
+	"strconv"
+
 	"github.com/julienschmidt/httprouter"
 	"github.com/neogan74/snip/internal/models"
 	"github.com/neogan74/snip/internal/validator"
-	"net/http"
-	"strconv"
 )
 
 type SnippetCreateForm struct {
@@ -103,7 +104,7 @@ func (app *App) snippetCreatePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	app.seesionManager.Put(r.Context(), "flash", "Snippet successfully created")
+	app.sessionManager.Put(r.Context(), "flash", "Snippet successfully created")
 
 	http.Redirect(w, r, fmt.Sprintf("/snippet/view/%d", id), http.StatusSeeOther)
 }
@@ -148,7 +149,7 @@ func (app *App) userSignUpPost(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
-	app.seesionManager.Put(r.Context(), "flash", "User successfully created")
+	app.sessionManager.Put(r.Context(), "flash", "User successfully created")
 	http.Redirect(w, r, "/user/login", http.StatusSeeOther)
 }
 
@@ -191,26 +192,26 @@ func (app *App) userLoginPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = app.seesionManager.RenewToken(r.Context())
+	err = app.sessionManager.RenewToken(r.Context())
 	if err != nil {
 		app.serverError(w, err)
 		return
 	}
 
-	app.seesionManager.Put(r.Context(), "authenticatedUserID", id)
+	app.sessionManager.Put(r.Context(), "authenticatedUserID", id)
 	http.Redirect(w, r, "/snippet/create", http.StatusSeeOther)
 }
 
 func (app *App) userLogoutPost(w http.ResponseWriter, r *http.Request) {
 
-	err := app.seesionManager.RenewToken(r.Context())
+	err := app.sessionManager.RenewToken(r.Context())
 	if err != nil {
 		app.serverError(w, err)
 		return
 	}
-	app.seesionManager.Remove(r.Context(), "authenticatedUserID")
+	app.sessionManager.Remove(r.Context(), "authenticatedUserID")
 
-	app.seesionManager.Put(r.Context(), "flash", "You've been logged out successfully!")
+	app.sessionManager.Put(r.Context(), "flash", "You've been logged out successfully!")
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 func ping(w http.ResponseWriter, r *http.Request) {

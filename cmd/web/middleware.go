@@ -3,8 +3,9 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/justinas/nosurf"
 	"net/http"
+
+	"github.com/justinas/nosurf"
 )
 
 func secureHeaders(next http.Handler) http.Handler {
@@ -64,7 +65,7 @@ func noSurf(next http.Handler) http.Handler {
 
 func (app *App) authenticate(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		id := app.seesionManager.GetInt(r.Context(), "authenticatedUserID")
+		id := app.sessionManager.GetInt(r.Context(), "authenticatedUserID")
 		if id == 0 {
 			next.ServeHTTP(w, r)
 			return

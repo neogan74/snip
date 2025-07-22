@@ -21,7 +21,7 @@ func (app *App) routes() http.Handler {
 	router.HandlerFunc(http.MethodGet, "/ping", ping)
 
 	// unprotected wuth auth group of endpoints
-	dynamic := alice.New(app.seesionManager.LoadAndSave, noSurf, app.authenticate)
+	dynamic := alice.New(app.sessionManager.LoadAndSave, noSurf, app.authenticate)
 
 	router.Handler(http.MethodGet, "/", dynamic.ThenFunc(app.home))
 	router.Handler(http.MethodGet, "/snippet/view/:id", dynamic.ThenFunc(app.snippetView))
