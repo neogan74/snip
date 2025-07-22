@@ -1,12 +1,13 @@
 package main
 
 import (
-	"github.com/neogan74/snip/internal/models"
-	"github.com/neogan74/snip/ui"
 	"html/template"
 	"io/fs"
 	"path/filepath"
 	"time"
+
+	"github.com/neogan74/snip/internal/models"
+	"github.com/neogan74/snip/ui"
 )
 
 type templateData struct {
@@ -30,7 +31,7 @@ var functions = template.FuncMap{
 	"HumanDate": HumanDate,
 }
 
-func newTempalteCache() (map[string]*template.Template, error) {
+func newTemplateCache() (map[string]*template.Template, error) {
 	cache := make(map[string]*template.Template)
 
 	pages, err := fs.Glob(ui.Files, "html/pages/*.tmpl.html")

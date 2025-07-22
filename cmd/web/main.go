@@ -47,7 +47,7 @@ func main() {
 	defer db.Close()
 	infoLog.Println(db.Ping())
 
-	templateCache, err := newTempalteCache()
+	templateCache, err := newTemplateCache()
 
 	if err != nil {
 		errorLog.Fatal(err)
