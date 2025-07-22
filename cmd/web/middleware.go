@@ -63,6 +63,11 @@ func noSurf(next http.Handler) http.Handler {
 	return csrfHadler
 }
 
+// authenticate is a middleware that checks if a user is authenticated by retrieving
+// the "authenticatedUserID" from the session. If the user is authenticated and exists
+// in the database, it adds an authentication flag to the request context. Otherwise,
+// it passes the request to the next handler without modification. If a database error
+// occurs during the existence check, it responds with a server error.
 func (app *App) authenticate(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		id := app.sessionManager.GetInt(r.Context(), "authenticatedUserID")
