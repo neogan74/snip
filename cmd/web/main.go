@@ -68,8 +68,8 @@ func main() {
 	app := &App{
 		errorLog:       errorLog,
 		infoLog:        infoLog,
-		snippets:       &models.SnippetModel{db},
-		users:          &models.UserModel{db},
+		snippets:       &models.SnippetModel{DB: db},
+		users:          &models.UserModel{DB: db},
 		templateCache:  templateCache,
 		formDecoder:    formDecoder,
 		sessionManager: sessionManager,
