@@ -20,6 +20,9 @@ type templateData struct {
 	CSRFToken       string
 }
 
+// HumanDate returns a human-readable string representation of the given time in UTC,
+// formatted as "02 Jan 2006 at 15:04". If the provided time is the zero value,
+// it returns an empty string.
 func HumanDate(t time.Time) string {
 	if t.IsZero() {
 		return ""
