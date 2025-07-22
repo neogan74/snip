@@ -52,6 +52,10 @@ func (app *App) requireAuthentication(next http.Handler) http.Handler {
 	})
 }
 
+// noSurf is a middleware that wraps the provided http.Handler with CSRF protection
+// using the nosurf package. It configures the CSRF cookie to be HttpOnly, Secure,
+// and available for the entire site (Path: "/"). This helps prevent Cross-Site
+// Request Forgery attacks by requiring a valid CSRF token on state-changing requests.
 func noSurf(next http.Handler) http.Handler {
 	csrfHadler := nosurf.New(next)
 	csrfHadler.SetBaseCookie(http.Cookie{
