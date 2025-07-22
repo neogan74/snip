@@ -47,9 +47,8 @@ func main() {
 	defer db.Close()
 
 	if err := db.Ping(); err != nil {
-		infoLog.Println(err)
+		errorLog.Fatal(err)
 	}
-
 	infoLog.Println("Connected to the database successfully")
 
 	templateCache, err := newTemplateCache()
