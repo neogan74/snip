@@ -37,7 +37,7 @@ func newTestApp(t *testing.T) *App {
 		users:          &mocks.UserModel{},
 		templateCache:  tempalteCache,
 		formDecoder:    formDecoder,
-		seesionManager: sessionManager,
+		sessionManager: sessionManager,
 	}
 }
 
