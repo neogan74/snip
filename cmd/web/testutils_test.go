@@ -16,12 +16,16 @@ import (
 )
 
 func newTestApp(t *testing.T) *App {
+	// Create an instance of the template cache
 	tempalteCache, err := newTempalteCache()
 	if err != nil {
 		t.Fatal(err)
 	}
+
+	// Added form decoder
 	formDecoder := form.NewDecoder()
 
+	// Added session manager instance.
 	sessionManager := scs.New()
 	sessionManager.Lifetime = 12 * time.Hour
 	sessionManager.Cookie.Secure = true
