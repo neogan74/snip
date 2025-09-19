@@ -10,6 +10,10 @@ import (
 	"github.com/neogan74/snip/internal/assert"
 )
 
+// Test_secureHeaders verifies that the secureHeaders middleware correctly sets
+// the expected HTTP security headers on the response, including Content-Security-Policy,
+// X-Content-Type-Options, X-Frame-Options, and X-XSS-Protection. It also checks that
+// the middleware passes through the response body and status code as expected.
 func Test_secureHeaders(t *testing.T) {
 	rr := httptest.NewRecorder()
 

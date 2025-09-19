@@ -8,6 +8,12 @@ import (
 	"github.com/neogan74/snip/ui"
 )
 
+// routes sets up the application's HTTP routes and middleware stack.
+// It configures custom handlers for not found routes, serves static files,
+// and defines both protected and unprotected endpoints for snippets and user authentication.
+// Middleware chains are used for session management, CSRF protection, authentication,
+// panic recovery, request logging, and secure headers.
+// Returns an http.Handler that is ready to be used by the HTTP server.
 func (app *App) routes() http.Handler {
 	router := httprouter.New()
 

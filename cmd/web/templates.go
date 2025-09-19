@@ -1,12 +1,13 @@
 package main
 
 import (
-	"github.com/neogan74/snip/internal/models"
-	"github.com/neogan74/snip/ui"
 	"html/template"
 	"io/fs"
 	"path/filepath"
 	"time"
+
+	"github.com/neogan74/snip/internal/models"
+	"github.com/neogan74/snip/ui"
 )
 
 type templateData struct {
@@ -19,6 +20,9 @@ type templateData struct {
 	CSRFToken       string
 }
 
+// HumanDate returns a human-readable string representation of the given time in UTC,
+// formatted as "02 Jan 2006 at 15:04". If the provided time is the zero value,
+// it returns an empty string.
 func HumanDate(t time.Time) string {
 	if t.IsZero() {
 		return ""
@@ -30,7 +34,12 @@ var functions = template.FuncMap{
 	"HumanDate": HumanDate,
 }
 
-func newTempalteCache() (map[string]*template.Template, error) {
+// newTemplateCache creates a cache of parsed HTML templates for the application.
+// It scans the embedded filesystem for all page templates matching "html/pages/*.tmpl.html",
+// and for each page, it parses the base template, navigation partial, and the page itself
+// into a single *template.Template instance. The resulting map uses the page's base filename
+// as the key. Returns the cache map or an error if template parsing fails.
+func newTemplateCache() (map[string]*template.Template, error) {
 	cache := make(map[string]*template.Template)
 
 	pages, err := fs.Glob(ui.Files, "html/pages/*.tmpl.html")

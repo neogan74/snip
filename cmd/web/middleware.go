@@ -8,7 +8,7 @@ import (
 	"github.com/justinas/nosurf"
 )
 
-func secureHeaders(next http.Handler) http.Handler {
+func secureHeadersTest(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("X-XSS-Protection", "1; mode=block")
 		w.Header().Set("X-Frame-Options", "deny")
@@ -52,7 +52,11 @@ func (app *App) requireAuthentication(next http.Handler) http.Handler {
 	})
 }
 
-func noSurf(next http.Handler) http.Handler {
+// noSurf is a middleware that wraps the provided http.Handler with CSRF protection
+// using the nosurf package. It configures the CSRF cookie to be HttpOnly, Secure,
+// and available for the entire site (Path: "/"). This helps prevent Cross-Site
+// Request Forgery attacks by requiring a valid CSRF token on state-changing requests.
+func TestnoSurf(next http.Handler) http.Handler {
 	csrfHadler := nosurf.New(next)
 	csrfHadler.SetBaseCookie(http.Cookie{
 		HttpOnly: true,
@@ -63,6 +67,11 @@ func noSurf(next http.Handler) http.Handler {
 	return csrfHadler
 }
 
+// authenticate is a middleware that checks if a user is authenticated by retrieving
+// the "authenticatedUserID" from the session. If the user is authenticated and exists
+// in the database, it adds an authentication flag to the request context. Otherwise,
+// it passes the request to the next handler without modification. If a database error
+// occurs during the existence check, it responds with a server error.
 func (app *App) authenticate(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		id := app.sessionManager.GetInt(r.Context(), "authenticatedUserID")
