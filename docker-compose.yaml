@@ -1,16 +1,17 @@
-version: '3.8'
 services:
   app:
     build: .
     container_name: snippetbox
     ports:
-      - "4000:4000"
+      - "4001:4001"
     depends_on:
-      - mysql
+      mysql:
+        condition: service_healthy
     environment:
-      # Пример переменных окружения для подключения к БД
-      MYSQL_HOST: mysql
-      MYSQL_PORT: 3306
+      SNIP_DB_DSN: "snipuser:snippassword@tcp(mysql:3306)/snipdb?parseTime=true"
+    volumes:
+      - ./cmd/web/tls:/app/tls:ro
+    command: ["-addr", ":4001"]
 
   mysql:
     image: mysql:8.0.43
@@ -26,6 +27,12 @@ services:
       - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
 
   postgres:
     image: postgres:latest

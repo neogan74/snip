@@ -30,6 +30,7 @@ func newTestApp(t *testing.T) *App {
 	sessionManager.Lifetime = 12 * time.Hour
 	sessionManager.Cookie.Secure = true
 
+
 	return &App{
 		errorLog:       log.New(io.Discard, "", 0),
 		infoLog:        log.New(io.Discard, "", 0),
@@ -38,6 +39,7 @@ func newTestApp(t *testing.T) *App {
 		templateCache:  tempalteCache,
 		formDecoder:    formDecoder,
 		sessionManager: sessionManager,
+
 	}
 }
 

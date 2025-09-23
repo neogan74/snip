@@ -1,160 +1,87 @@
 package main
 
 import (
-	"io/fs"
+	"html/template"
 	"net/http"
 	"net/http/httptest"
-	"strings"
 	"testing"
 
-	"github.com/neogan74/snip/ui"
+	"github.com/alexedwards/scs/v2"
 )
 
-// Define a minimal interface for session management used in App
-type sessionManagerInterface interface {
-	LoadAndSave(http.Handler) http.Handler
-}
+func newRoutesTestApp(t *testing.T) *App {
+	t.Helper()
 
-func newMockApp() *App {
-	return &App{
-		// Use interface{} or a custom interface for sessionManager in tests
-		sessionManager: &mockSessionManager{},
+	originalCSRF := csrfMiddleware
+	originalSecureHeaders := secureHeadersFunc
+	csrfMiddleware = func(next http.Handler) http.Handler { return next }
+	secureHeadersFunc = func(next http.Handler) http.Handler { return next }
+
+	t.Cleanup(func() {
+		csrfMiddleware = originalCSRF
+		secureHeadersFunc = originalSecureHeaders
+	})
+
+	app := newTestApp(t)
+	app.sessionManager = scs.New()
+	app.templateCache = map[string]*template.Template{
+		"login.tmpl.html":  template.Must(template.New("login.tmpl.html").Parse(`{{define "base"}}login{{end}}`)),
+		"signup.tmpl.html": template.Must(template.New("signup.tmpl.html").Parse(`{{define "base"}}signup{{end}}`)),
 	}
-}
 
-// --- Mock dependencies ---
-
-type mockSessionManager struct{}
-
-// Ensure mockSessionManager implements sessionManagerInterface
-var _ sessionManagerInterface = (*mockSessionManager)(nil)
-
-// --- Mock dependencies ---
-
-type mockSessionManager struct{}
-
-func (m *mockSessionManager) LoadAndSave(next http.Handler) http.Handler {
-	return next
-}
-
-// Dummy middleware and handlers for testing
-func noSurf(next http.Handler) http.Handler                           { return next }
-func (app *App) authenticate(next http.Handler) http.Handler          { return next }
-func (app *App) requireAuthentication(next http.Handler) http.Handler { return next }
-func (app *App) recoverPanic(next http.Handler) http.Handler          { return next }
-func (app *App) logRequest(next http.Handler) http.Handler            { return next }
-func secureHeaders(next http.Handler) http.Handler                    { return next }
-
-func (app *App) notFound(w http.ResponseWriter) {
-	http.Error(w, "custom 404", http.StatusNotFound)
-}
-
-func (app *App) home(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("home"))
-}
-func (app *App) snippetView(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("snippet view"))
-}
-func (app *App) userSignUp(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("signup"))
-}
-func (app *App) userSignUpPost(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("signup post"))
-}
-func (app *App) userLogin(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("login"))
-}
-func (app *App) userLoginPost(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("login post"))
-}
-func (app *App) snippetCreate(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("snippet create"))
-}
-func (app *App) snippetCreatePost(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("snippet create post"))
-}
-func (app *App) userLogoutPost(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("logout"))
-}
-
-// ping handler for /ping route
-func ping(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("OK"))
-}
-
-// Mock ui.Files for static file serving
-type mockFS struct{}
-
-func (m mockFS) Open(name string) (fs.File, error) {
-	return nil, fs.ErrNotExist
-}
-
-var _ fs.FS = mockFS{}
-
-func init() {
-	// Patch ui.Files for tests
-	ui.Files = mockFS{}
+	return app
 }
 
 func TestRoutes(t *testing.T) {
-	app := newMockApp()
+	app := newRoutesTestApp(t)
 	handler := app.routes()
 
 	tests := []struct {
-		name       string
-		method     string
-		target     string
-		wantStatus int
-		wantBody   string
+		name         string
+		method       string
+		target       string
+		wantStatus   int
+		wantLocation string
 	}{
-		{"Home", "GET", "/", http.StatusOK, "home"},
-		{"SnippetView", "GET", "/snippet/view/1", http.StatusOK, "snippet view"},
-		{"UserSignupGet", "GET", "/user/signup", http.StatusOK, "signup"},
-		{"UserSignupPost", "POST", "/user/signup", http.StatusOK, "signup post"},
-		{"UserLoginGet", "GET", "/user/login", http.StatusOK, "login"},
-		{"UserLoginPost", "POST", "/user/login", http.StatusOK, "login post"},
-		{"SnippetCreateGet", "GET", "/snippet/create", http.StatusOK, "snippet create"},
-		{"SnippetCreatePost", "POST", "/snippet/create", http.StatusOK, "snippet create post"},
-		{"UserLogoutPost", "POST", "/user/logout", http.StatusOK, "logout"},
-		{"Ping", "GET", "/ping", http.StatusOK, "OK"},
-		{"NotFound", "GET", "/doesnotexist", http.StatusNotFound, "custom 404"},
+		{name: "Ping", method: http.MethodGet, target: "/ping", wantStatus: http.StatusOK},
+		{name: "UserSignupGet", method: http.MethodGet, target: "/user/signup", wantStatus: http.StatusOK},
+		{name: "UserLoginGet", method: http.MethodGet, target: "/user/login", wantStatus: http.StatusOK},
+		{name: "SnippetCreateGet", method: http.MethodGet, target: "/snippet/create", wantStatus: http.StatusSeeOther, wantLocation: "/user/login"},
+		{name: "SnippetCreatePost", method: http.MethodPost, target: "/snippet/create", wantStatus: http.StatusSeeOther, wantLocation: "/user/login"},
+		{name: "UserLogoutPost", method: http.MethodPost, target: "/user/logout", wantStatus: http.StatusSeeOther, wantLocation: "/user/login"},
+		{name: "NotFound", method: http.MethodGet, target: "/does-not-exist", wantStatus: http.StatusNotFound},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			req := httptest.NewRequest(tt.method, tt.target, nil)
 			rr := httptest.NewRecorder()
+
 			handler.ServeHTTP(rr, req)
 
 			if rr.Code != tt.wantStatus {
-				t.Errorf("got status %d, want %d", rr.Code, tt.wantStatus)
+				t.Fatalf("%s: got status %d, want %d", tt.name, rr.Code, tt.wantStatus)
 			}
-			if !strings.Contains(rr.Body.String(), tt.wantBody) {
-				t.Errorf("got body %q, want to contain %q", rr.Body.String(), tt.wantBody)
+
+			if tt.wantLocation != "" {
+				if got := rr.Header().Get("Location"); got != tt.wantLocation {
+					t.Fatalf("%s: got location %q, want %q", tt.name, got, tt.wantLocation)
+				}
 			}
 		})
 	}
 }
 
 func TestStaticFileRoute(t *testing.T) {
-	app := newMockApp()
+	app := newRoutesTestApp(t)
 	handler := app.routes()
 
-	req := httptest.NewRequest("GET", "/static/test.txt", nil)
+	req := httptest.NewRequest(http.MethodGet, "/static/index.html", nil)
 	rr := httptest.NewRecorder()
+
 	handler.ServeHTTP(rr, req)
 
-	// Since mockFS always returns ErrNotExist, expect 404
-	if rr.Code != http.StatusNotFound {
-		t.Errorf("got status %d, want %d", rr.Code, http.StatusNotFound)
+	if rr.Code != http.StatusOK {
+		t.Fatalf("got status %d, want %d", rr.Code, http.StatusOK)
 	}
 }

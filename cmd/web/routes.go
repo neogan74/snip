@@ -1,6 +1,7 @@
 package main
 
 import (
+	"io/fs"
 	"net/http"
 
 	"github.com/julienschmidt/httprouter"
@@ -21,8 +22,13 @@ func (app *App) routes() http.Handler {
 		app.notFound(w)
 	})
 
-	fileServer := http.FileServer(http.FS(ui.Files))
-	router.Handler(http.MethodGet, "/static/*filepath", fileServer)
+	staticFS, err := fs.Sub(ui.Files, "static")
+	if err != nil {
+		app.errorLog.Fatal(err)
+	}
+
+	fileServer := http.FileServer(http.FS(staticFS))
+	router.Handler(http.MethodGet, "/static/*filepath", http.StripPrefix("/static", fileServer))
 
 	router.HandlerFunc(http.MethodGet, "/ping", ping)
 
