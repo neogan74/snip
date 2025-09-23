@@ -8,7 +8,7 @@ import (
 	"github.com/justinas/nosurf"
 )
 
-func secureHeadersTest(next http.Handler) http.Handler {
+func secureHeaders(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("X-XSS-Protection", "1; mode=block")
 		w.Header().Set("X-Frame-Options", "deny")
@@ -56,7 +56,7 @@ func (app *App) requireAuthentication(next http.Handler) http.Handler {
 // using the nosurf package. It configures the CSRF cookie to be HttpOnly, Secure,
 // and available for the entire site (Path: "/"). This helps prevent Cross-Site
 // Request Forgery attacks by requiring a valid CSRF token on state-changing requests.
-func TestnoSurf(next http.Handler) http.Handler {
+func noSurf(next http.Handler) http.Handler {
 	csrfHadler := nosurf.New(next)
 	csrfHadler.SetBaseCookie(http.Cookie{
 		HttpOnly: true,
