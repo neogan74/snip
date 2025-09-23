@@ -8,12 +8,17 @@ import (
 	"net/http/cookiejar"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/alexedwards/scs/v2"
 )
 
 func newTestApp(t *testing.T) *App {
+	t.Helper()
+
 	return &App{
-		errorLog: log.New(io.Discard, "", 0),
-		infoLog:  log.New(io.Discard, "", 0),
+		errorLog:       log.New(io.Discard, "", 0),
+		infoLog:        log.New(io.Discard, "", 0),
+		sessionManager: scs.New(),
 	}
 }
 
