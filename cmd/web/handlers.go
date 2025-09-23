@@ -11,6 +11,11 @@ import (
 	"github.com/neogan74/snip/internal/validator"
 )
 
+func ping(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
+	_, _ = w.Write([]byte("OK"))
+}
+
 type SnippetCreateForm struct {
 	Title               string `form:"title"`
 	Content             string `form:"content"`
