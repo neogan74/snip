@@ -1,3 +1,6 @@
 .idea
 /tls
 .DS_Store
+/app
+/db/sessions.csv
+/db/snippets.csv

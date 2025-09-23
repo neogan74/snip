@@ -14,7 +14,7 @@ services:
     command: ["-addr", ":4001"]
 
   mysql:
-    image: mysql:8.0.22
+    image: mysql:8.0.43
     platform: linux/amd64
     container_name: mysql_db
     restart: always

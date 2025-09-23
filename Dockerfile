@@ -12,9 +12,13 @@ RUN go mod download
 COPY . .
 RUN go build -trimpath -ldflags="-s -w" -o /app/bin/web ./cmd/web
 
-FROM alpine:3.20
-RUN apk add --no-cache ca-certificates && addgroup -S app && adduser -S app -G app
-WORKDIR /app
+# Собираем бинарный файл
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o app ./cmd/web
+
+# Stage 2: создание минимального образа
+FROM alpine:latest
+WORKDIR /root/
+COPY --from=builder /app/app .
 
 COPY --from=builder /app/bin/web ./web
 
