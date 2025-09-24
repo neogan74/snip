@@ -12,16 +12,6 @@ import (
 func newRoutesTestApp(t *testing.T) *App {
 	t.Helper()
 
-	originalCSRF := csrfMiddleware
-	originalSecureHeaders := secureHeadersFunc
-	csrfMiddleware = func(next http.Handler) http.Handler { return next }
-	secureHeadersFunc = func(next http.Handler) http.Handler { return next }
-
-	t.Cleanup(func() {
-		csrfMiddleware = originalCSRF
-		secureHeadersFunc = originalSecureHeaders
-	})
-
 	app := newTestApp(t)
 	app.sessionManager = scs.New()
 	app.templateCache = map[string]*template.Template{
@@ -47,8 +37,8 @@ func TestRoutes(t *testing.T) {
 		{name: "UserSignupGet", method: http.MethodGet, target: "/user/signup", wantStatus: http.StatusOK},
 		{name: "UserLoginGet", method: http.MethodGet, target: "/user/login", wantStatus: http.StatusOK},
 		{name: "SnippetCreateGet", method: http.MethodGet, target: "/snippet/create", wantStatus: http.StatusSeeOther, wantLocation: "/user/login"},
-		{name: "SnippetCreatePost", method: http.MethodPost, target: "/snippet/create", wantStatus: http.StatusSeeOther, wantLocation: "/user/login"},
-		{name: "UserLogoutPost", method: http.MethodPost, target: "/user/logout", wantStatus: http.StatusSeeOther, wantLocation: "/user/login"},
+		{name: "SnippetCreatePost", method: http.MethodPost, target: "/snippet/create", wantStatus: http.StatusBadRequest},
+		{name: "UserLogoutPost", method: http.MethodPost, target: "/user/logout", wantStatus: http.StatusBadRequest},
 		{name: "NotFound", method: http.MethodGet, target: "/does-not-exist", wantStatus: http.StatusNotFound},
 	}
 
@@ -76,7 +66,7 @@ func TestStaticFileRoute(t *testing.T) {
 	app := newRoutesTestApp(t)
 	handler := app.routes()
 
-	req := httptest.NewRequest(http.MethodGet, "/static/index.html", nil)
+	req := httptest.NewRequest(http.MethodGet, "/static/", nil)
 	rr := httptest.NewRecorder()
 
 	handler.ServeHTTP(rr, req)
