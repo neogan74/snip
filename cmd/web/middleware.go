@@ -57,14 +57,14 @@ func (app *App) requireAuthentication(next http.Handler) http.Handler {
 // and available for the entire site (Path: "/"). This helps prevent Cross-Site
 // Request Forgery attacks by requiring a valid CSRF token on state-changing requests.
 func noSurf(next http.Handler) http.Handler {
-	csrfHadler := nosurf.New(next)
-	csrfHadler.SetBaseCookie(http.Cookie{
+	csrfHandler := nosurf.New(next)
+	csrfHandler.SetBaseCookie(http.Cookie{
 		HttpOnly: true,
 		Path:     "/",
 		Secure:   true,
 	})
 
-	return csrfHadler
+	return csrfHandler
 }
 
 // authenticate is a middleware that checks if a user is authenticated by retrieving
