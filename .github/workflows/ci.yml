@@ -1,10 +1,11 @@
+
 name: CI
 
 on:
   push:
-    branches: [ first ]
+    branches: [ main ]
   pull_request:
-    branches: [ first ]
+    branches: [ main ]
 
 jobs:
   build-and-test:
@@ -24,7 +25,7 @@ jobs:
         run: |
           fmt_output=$(gofmt -l .)
           if [ -n "$fmt_output" ]; then
-            echo "The following files need gofmt:" >&2
+            echo 'The following files need gofmt:' >&2
             echo "$fmt_output" >&2
             exit 1
           fi
